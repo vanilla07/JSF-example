@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="#{languageBean.localeCode}"
+	  xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      >
+ 	<h:head>
+ 		<title>TEST</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta name="viewport" content="width=device-width"/>
+		
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Alef"/>
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Imprima:400"/>
+		
+		<h:outputStylesheet library="css" name="design01.css"  />
+		
+ 	</h:head>
+    <h:body>
+    <f:view locale="#{language.locale}">
+		<h:outputScript name="js/translation.js" />
+    	<ui:include src="header.htm" />
+    	<ui:include src="image.htm" />
+    	<ui:include src="footer.htm" />
+    </f:view>
+    </h:body>
+</html>

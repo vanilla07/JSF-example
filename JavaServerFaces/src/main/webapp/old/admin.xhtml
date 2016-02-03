@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="#{languageBean.localeCode}"
+	  xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      >
+    <f:view locale="#{language.locale}">  
+ 	<h:head>
+ 		#{editor.initRoomNames()}
+	 	<h:outputStylesheet library="css" name="styles.css"  />
+		<script language="javascript" type="text/javascript">
+			var full1= #{allres.fillTabresa(1)};
+			var full2= #{allres.fillTabresa(2)};
+			var full3= #{allres.fillTabresa(3)};
+			var full4= #{allres.fillTabresa(4)};
+			
+			var full=full#{editor.room_id};
+			
+			function updateVarFull(id) {
+				if(id=="1"){full = full1}
+				else if(id=="2"){full = full2}
+				else if(id=="3"){full = full3}
+				else {full = full4}
+			  }
+			
+			function nonWorkingDays(date) {
+				var e = document.getElementById("resa:room_input");
+				updateVarFull(e.options[e.selectedIndex].value);
+				if(full!="" &amp;&amp;  full.length!=0){
+					for (var j = 0; j &lt; full.length; j++) {
+				      if (date.getMonth() == full[j][1] - 1 &amp;&amp; date.getDate() == full[j][0] &amp;&amp; date.getFullYear() == full[j][2]) {
+				        return [true, 'full', 'indisponible'];
+				      }
+				    }
+				}
+			  	return [true, 'empty'];
+			  }
+		</script>
+ 	</h:head>
+    <h:body>
+    
+    <h:form id="lang">
+    	<h1><h:outputText value="#{msg['title.sandbox']}" /></h1>
+    	
+    	<p:commandLink id="Logout" actionListener="/j_spring_security_logout">  
+	        <h:outputText value="Logout" />  
+	    </p:commandLink>
+    	
+    	<p:panelGrid columns="2">
+		#{msg['txt.lang']} : 
+		<p:selectOneMenu value="#{language.localeCode}"
+			valueChangeListener="#{language.countryLocaleCodeChanged}">
+   			<f:selectItems value="#{language.countriesInMap}" /> 
+   			<p:ajax update=":resa,:form,lang"/>
+   		</p:selectOneMenu>
+		</p:panelGrid>
+ 	</h:form>
+ 	
+	<h:outputScript name="js/translation.js" />
+	<h:form id="resa">
+ 		<p:growl id="growl" showDetail="true"/>
+ 			<hr/>
+ 		<h3><h:outputText value="#{msg['title.calendar']}" /></h3>  
+		<p:calendar id="cal" mode="inline" pages="3" beforeShowDay="nonWorkingDays"
+					mindate="#{calendarBean.fillToday()}" pattern="dd/MM/yyyy" locale="#{language.locale}">
+			<p:ajax event="dateSelect" listener="#{calendarBean.handleDateSelect}" update="growl" />
+		</p:calendar> 
+ 		
+ 		<br/>
+ 		<hr/>	
+		<h3>#{calendarBean.fillDates()} <h:outputText value="#{msg['title.book']}" /> </h3>
+		
+		<div class="formulaire">
+   	   	<p:panel id="panel" header="#{msg['title.book.room']}" style="margin-bottom:10px;">  
+	        <p:messages id="messages" />  
+	  
+	        <h:panelGrid columns="3">  
+	        
+	        	<h:outputLabel for="room" value="#{msg['txt.room']}: *" />  
+	            <p:selectOneMenu id="room" value="#{editor.room_id}" required="true" onchange="updateVarFull(this.value)"> 
+	                <f:selectItems value="#{editor.rooms}"/>  
+	                <p:ajax update="dout, din, cal"/>
+	            </p:selectOneMenu>  
+	            <p:message for="room" />
+	        
+	            <h:outputLabel for="name" value="#{msg['txt.name']}: *" />  
+	            <p:inputText id="name" value="#{editor.name}" required="true" label="name" maxlength="20">  
+	                <f:validateLength minimum="2" maximum="20" />  
+	                <f:validateRegex pattern="[a-zA-Z'-]+"/>
+	            </p:inputText>  
+	            <p:message for="name" />  
+	                        
+	           	<h:outputLabel for="din" value="#{msg['txt.checkin']}: *" />
+	            <p:calendar value="#{calendarBean.date1}" mode="popup" readonlyInput="true" navigator="true" 
+   					pattern="dd/MM/yyyy" showOn="both" locale="#{language.locale}" id="din" yearRange="c:c+2"
+   					mindate="#{calendarBean.fillToday()}" beforeShowDay="nonWorkingDays" required="true"
+   					requiredMessage="champ obligatoire">
+   					<p:ajax event="dateSelect" update="growl,dout" listener="#{calendarBean.handleDate1Select}"/>
+   				</p:calendar>
+   					<br/>
+   					
+   				<h:outputLabel for="dout" value="#{msg['txt.checkout']}: *" />
+	            <p:calendar value="#{calendarBean.date2}" mode="popup" readonlyInput="true" navigator="true" 
+   					pattern="dd/MM/yyyy" showOn="both" locale="#{language.locale}" id="dout" yearRange="c:c+2" maxdate="#{calendarBean.datetoPattern(calendarBean.datemax)}"
+   					mindate="#{calendarBean.datetoPattern(calendarBean.datemin)}" beforeShowDay="nonWorkingDays" required="true"
+   					requiredMessage="champ obligatoire">
+   					<f:attribute name="startDate" value="#{calendarBean.date1}" />
+   					<f:attribute name="room_id" value="#{editor.room_id}" />
+   					<f:attribute name="maxDate" value="#{calendarBean.datemax}" />
+    				<f:validator validatorId="dateValidator" binding="#{datevalidator}" />
+   				</p:calendar>
+   				<p:message for="dout" />
+	            
+	            <h:outputLabel for="pers" value="#{msg['txt.guests.nb']}: *" />  
+	            <p:selectOneMenu value="#{editor.nb_pers}" id="pers" required="true" label="pers">  
+		            <f:selectItem itemLabel="1" itemValue="1" />  
+		            <f:selectItem itemLabel="2" itemValue="2" />  
+		            <f:selectItem itemLabel="3" itemValue="3" />  
+		        </p:selectOneMenu> 
+	            <p:message for="pers" />
+	        </h:panelGrid> 
+	          <br/>
+	         
+	        <p:commandButton update="@(resa),@(form)" value="#{msg['btn.book']}" actionListener="#{editor.saveResa}"/> 
+		</p:panel>
+    	</div> 
+    	   	
+	</h:form>
+ 		
+ 		<br/>
+ 		<br/>
+ 		<hr/>
+ 		
+ 		<div class="listing">
+ 		<h:form id="form"> 
+ 			<h3><h:outputText value="#{msg['title.list']}" /> #{allres.fillResaModel()}</h3>
+ 			<p:growl id="growl2" showDetail="true"/> 
+		    <p:dataTable var="resa" value="#{allres.resaModel}" paginator="true" rows="10" rowKey="#{resa.pk}" 
+                 selection="#{allres.selectedRes}" selectionMode="single" id="listing">
+		    
+		    	<f:facet name="header">  
+		            <h:outputText value="#{msg['title.bookings.list']}" /> 
+		        </f:facet>  
+		        
+		        <p:column headerText="#{msg['txt.name']}" sortBy="#{resa.client_name}" filterBy="#{resa.client_name}">  
+		            <h:outputText value="#{resa.client_name}" />  
+		        </p:column>  
+		  
+		        <p:column headerText="#{msg['txt.room']}" sortBy="#{resa.idToRoom(resa.room_id)}" filterBy="#{resa.idToRoom(resa.room_id)}">  
+		            <h:outputText value="#{resa.idToRoom(resa.room_id)}" />  
+		        </p:column>  
+		  
+		        <p:column headerText="#{msg['txt.checkin']}" sortBy="#{resa.datetoPattern(resa.date_in)}" filterBy="#{resa.datetoPattern(resa.date_in)}">  
+		            <h:outputText value="#{resa.datetoPattern(resa.date_in)}" />  
+		        </p:column>  
+		  
+		        <p:column headerText="#{msg['txt.checkout']}" sortBy="#{resa.datetoPattern(resa.date_out)}" filterBy="#{resa.datetoPattern(resa.date_out)}">  
+		            <h:outputText value="#{resa.datetoPattern(resa.date_out)}" />  
+		        </p:column>  
+		        
+		        <p:column headerText="#{msg['txt.nights.nb']}" sortBy="#{resa.nb_nights}">  
+		            <h:outputText value="#{resa.nb_nights}" />  
+		        </p:column>  
+		        
+		        <p:column headerText="#{msg['txt.price']}" sortBy="#{resa.price}">  
+		            <h:outputText value="#{resa.price}" />  
+		        </p:column>  
+
+		        <p:column headerText="#{msg['txt.booking.status']}" sortBy="#{resa.statusToString(resa.status)}">  
+		            <h:outputText value="#{resa.statusToString(resa.status)}" />  
+		        </p:column>  
+		        
+		        <f:facet name="footer">  
+		             #{fn:length(allres.resaList)} #{msg['txt.bookings']}. <br />
+		             <p:commandButton id="viewButton" value="#{msg['btn.details']}" icon="ui-icon-search"  
+                             update=":form:display" oncomplete="resDialog.show()"/>
+                              
+		             <p:commandButton id="deleteButton" value="#{msg['btn.delete']}" icon="ui-icon-trash"  
+                              update=":form:growl2,@(resa),@(form)" actionListener="#{allres.delResa}"/> 
+
+		             <p:commandButton id="archiveButton" value="#{msg['btn.archive']}" icon="ui-icon-folder-collapsed"  
+                              update=":form:growl2,@(resa),@(form)" actionListener="#{allres.archivage}"/> 
+		        </f:facet> 
+		    </p:dataTable>
+		    
+		    <p:dialog header="#{msg['title.booking.details']}" widgetVar="resDialog" resizable="false" id="resDialog"  
+		                showEffect="fade" hideEffect="fade">  
+		  
+		        <h:panelGrid id="display" columns="2" cellpadding="4" style="margin:0 auto;">  
+		  
+		            <f:facet name="header">  
+		                #{msg['txt.booking.id']} #{allres.selectedRes.pk}
+		            </f:facet>  
+		  
+		            <h:outputText value="#{msg['txt.client.name']}:" />  
+		            <h:outputText value="#{allres.selectedRes.client_name}" style="font-weight:bold"/>  
+		  
+		            <h:outputText value="#{msg['txt.checkin']}:" />  
+		            <h:outputText value="#{allres.selectedRes.datetoPattern(allres.selectedRes.date_in)}" style="font-weight:bold"/>  
+		  
+		  
+		            <h:outputText value="#{msg['txt.checkout']}:" />  
+		            <h:outputText value="#{allres.selectedRes.datetoPattern(allres.selectedRes.date_out)}" style="font-weight:bold"/>  
+		  
+		            <h:outputText value="#{msg['txt.price']}:" />  
+		            <h:outputText value="#{allres.selectedRes.price}" style="font-weight:bold"/>  
+
+		            <h:outputText value="#{msg['txt.booking.status']}:" />  
+		            <h:outputText value="#{allres.selectedRes.statusToString(allres.selectedRes.status)}" style="font-weight:bold"/>  
+		  
+		        </h:panelGrid>  
+		  
+		    </p:dialog>
+		</h:form> 
+ 		</div>
+ 		<br/>
+ 		<hr/>
+ 		<h3> <h:outputText value="#{msg['title.gallery']}" /> </h3>
+ 		<object width="600" height="450"> 
+ 			<param name="flashvars" value="offsite=true&amp;lang=fr-fr&amp;page_show_url=%2Fphotos%2F97066519%40N03%2Fsets%2F72157634966057151%2Fshow%2Fwith%2F9459412628%2F&amp;page_show_back_url=%2Fphotos%2F97066519%40N03%2Fsets%2F72157634966057151%2Fwith%2F9459412628%2F&amp;set_id=72157634966057151&amp;jump_to=9459412628"></param> 
+ 			<param name="movie" value="http://www.flickr.com/apps/slideshow/show.swf?v=124984"></param> 
+ 			<param name="allowFullScreen" value="true"></param>
+ 			<embed type="application/x-shockwave-flash" src="http://www.flickr.com/apps/slideshow/show.swf?v=124984" 
+ 					allowFullScreen="true" 
+ 					flashvars="offsite=true&amp;lang=fr-fr&amp;page_show_url=%2Fphotos%2F97066519%40N03%2Fsets%2F72157634966057151%2Fshow%2Fwith%2F9459412628%2F&amp;page_show_back_url=%2Fphotos%2F97066519%40N03%2Fsets%2F72157634966057151%2Fwith%2F9459412628%2F&amp;set_id=72157634966057151&amp;jump_to=9459412628" 
+ 					width="600" 
+ 					height="450">
+ 			</embed>
+ 		</object>
+		 <br/>
+		 <br/>
+    </h:body>
+    </f:view>
+</html>

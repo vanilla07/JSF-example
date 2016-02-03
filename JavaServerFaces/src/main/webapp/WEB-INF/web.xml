@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+	id="WebApp_ID" version="2.5">
+ 
+  <display-name>JavaServerFaces</display-name>
+ 
+  <!-- Add Support for Spring -->
+  <listener>
+	<listener-class>
+		org.springframework.web.context.ContextLoaderListener
+	</listener-class>
+  </listener>
+  <listener>
+	<listener-class>
+		org.springframework.web.context.request.RequestContextListener
+	</listener-class>
+  </listener>
+
+  <context-param>
+	<param-name>contextConfigLocation</param-name>
+	<param-value>
+		/WEB-INF/applicationContext.xml
+		/WEB-INF/mvc-dispatcher-servlet.xml
+	</param-value>
+  </context-param>
+  
+	<!-- Spring MVC -->
+	<servlet>
+		<servlet-name>mvc-dispatcher</servlet-name>
+		<servlet-class>
+               org.springframework.web.servlet.DispatcherServlet
+        </servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+ 
+	<servlet-mapping>
+		<servlet-name>mvc-dispatcher</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+
+  <!-- Change to "Production" when you are ready to deploy -->
+  <context-param>
+    <param-name>javax.faces.PROJECT_STAGE</param-name>
+    <param-value>Development</param-value>
+  </context-param>
+  
+  <context-param>  
+    <param-name>primefaces.THEME</param-name>  
+    <param-value>blitzer</param-value>  
+  </context-param>
+ 
+  <!-- Welcome page -->
+  <welcome-file-list>
+    <welcome-file>home.xhtml</welcome-file>
+  </welcome-file-list>
+ 
+  <!-- JSF Mapping -->
+  <servlet>
+    <servlet-name>facesServlet</servlet-name>
+    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>facesServlet</servlet-name>
+    <url-pattern>*.jsf</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>facesServlet</servlet-name>
+    <url-pattern>*.xhtml</url-pattern>
+  </servlet-mapping>
+  
+  <context-param>
+	<param-name>primefaces.PRIVATE_CAPTCHA_KEY</param-name>
+	<param-value>6LdgRuUSAAAAAJUC3iZ_2sgtsH4BXKGrnb2BxJE-</param-value>
+  </context-param>
+  <context-param>
+	<param-name>primefaces.PUBLIC_CAPTCHA_KEY</param-name>
+	<param-value>6LdgRuUSAAAAAAlrR-isodWHC8XnxSwPg4R2HRcU</param-value>
+  </context-param>
+ 
+    
+</web-app>

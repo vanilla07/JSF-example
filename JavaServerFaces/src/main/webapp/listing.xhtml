@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="#{languageBean.localeCode}"
+	  xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      >
+ 	<h:head>
+ 		<title>La Passerelle des Corton</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta name="viewport" content="width=device-width"/>
+		
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Alef"/>
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Imprima:400"/>
+		
+		<h:outputStylesheet library="css" name="design01.css"  />
+		
+ 		#{editor.initRoomNames()} 
+ 	</h:head>
+    <h:body>
+    <f:view locale="#{language.locale}">
+		<h:outputScript name="js/translation.js" />
+    	<ui:include src="header.htm" />
+    	<div id="main">
+			<div class="center">
+				<h3><h:outputText value="#{msg['title.bookings.list']}" /> #{allres.fillResaModel()}</h3>
+				
+				<h:form id="form" class="clear">
+		 			<p:growl id="growl2" showDetail="true"/> 
+				    <p:dataTable var="resa" value="#{allres.resaModel}" paginator="true" rows="10" rowKey="#{resa.pk}" 
+		                 selection="#{allres.selectedRes}" selectionMode="single" id="listing">
+				    
+				        <p:column headerText="#{msg['txt.name']}" sortBy="#{resa.client_name}" filterBy="#{resa.client_name}">  
+				            <h:outputText value="#{resa.client_name}" />  
+				        </p:column>  
+				  
+				        <p:column headerText="#{msg['txt.room']}" sortBy="#{resa.idToRoom(resa.room_id)}" filterBy="#{resa.idToRoom(resa.room_id)}">  
+				            <h:outputText value="#{resa.idToRoom(resa.room_id)}" />  
+				        </p:column>  
+				  
+				        <p:column headerText="#{msg['txt.checkin']}" sortBy="#{resa.datetoPattern(resa.date_in)}" filterBy="#{resa.datetoPattern(resa.date_in)}">  
+				            <h:outputText value="#{resa.datetoPattern(resa.date_in)}" />  
+				        </p:column>  
+				  
+				        <p:column headerText="#{msg['txt.checkout']}" sortBy="#{resa.datetoPattern(resa.date_out)}" filterBy="#{resa.datetoPattern(resa.date_out)}">  
+				            <h:outputText value="#{resa.datetoPattern(resa.date_out)}" />  
+				        </p:column>  
+				        
+				        <p:column headerText="#{msg['txt.nights.nb']}" sortBy="#{resa.nb_nights}">  
+				            <h:outputText value="#{resa.nb_nights}" />  
+				        </p:column>  
+				        
+				        <p:column headerText="#{msg['txt.price']}" sortBy="#{resa.price}">  
+				            <h:outputText value="#{resa.price}" />  
+				        </p:column>  
+		
+				        <p:column headerText="#{msg['txt.booking.status']}" sortBy="#{resa.statusToString(resa.status)}">  
+				            <h:outputText value="#{resa.statusToString(resa.status)}" />  
+				        </p:column>  
+				        
+				        <f:facet name="footer">  
+				             #{fn:length(allres.resaList)} #{msg['txt.bookings']}. <br />
+				             <p:commandButton id="viewButton" value="#{msg['btn.details']}" icon="ui-icon-search"  
+		                             update=":form:display" oncomplete="resDialog.show()"/>
+		                              
+				             <p:commandButton id="archiveButton" value="#{msg['btn.archive']}" icon="ui-icon-folder-collapsed"  
+		                              update=":form:growl2,@(resa),@(form)" actionListener="#{allres.archivage}"/> 
+				        </f:facet> 
+				    </p:dataTable>
+				    
+				    <p:dialog header="#{msg['title.booking.details']}" widgetVar="resDialog" resizable="false" id="resDialog"  
+				                showEffect="fade" hideEffect="fade">  
+				  
+				        <h:panelGrid id="display" columns="2" cellpadding="4" style="margin:0 auto;">  
+				  
+				            <f:facet name="header">  
+				                #{msg['txt.booking.id']} #{allres.selectedRes.pk}
+				            </f:facet>  
+				  
+				            <h:outputText value="#{msg['txt.client.name']}:" />  
+				            <h:outputText value="#{allres.selectedRes.client_name}" style="font-weight:bold"/>  
+				  
+				            <h:outputText value="#{msg['txt.checkin']}:" />  
+				            <h:outputText value="#{allres.selectedRes.datetoPattern(allres.selectedRes.date_in)}" style="font-weight:bold"/>  
+				  
+				  
+				            <h:outputText value="#{msg['txt.checkout']}:" />  
+				            <h:outputText value="#{allres.selectedRes.datetoPattern(allres.selectedRes.date_out)}" style="font-weight:bold"/>  
+				  
+				            <h:outputText value="#{msg['txt.price']}:" />  
+				            <h:outputText value="#{allres.selectedRes.price}" style="font-weight:bold"/>  
+		
+				            <h:outputText value="#{msg['txt.booking.status']}:" />  
+				            <h:outputText value="#{allres.selectedRes.statusToString(allres.selectedRes.status)}" style="font-weight:bold"/>  
+				  
+				        </h:panelGrid>  
+				  
+				    </p:dialog>
+				    <br/>
+				    <h:link value="Calendrier des disponibilités" outcome="dispos" />
+					 |
+					<h:link value="Réservation" outcome="resa" />
+					 |	
+			    	<h:link value="Page Admin" outcome="admin" />
+				</h:form>
+			</div>
+		</div>
+    	<ui:include src="footer.htm" />
+    </f:view>
+    </h:body>
+</html>

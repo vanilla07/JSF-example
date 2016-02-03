@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="#{languageBean.localeCode}"
+	  xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      >
+ 	<h:head>
+ 		<title>La Passerelle des Corton</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta name="viewport" content="width=device-width"/>
+		
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Alef"/>
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Imprima:400"/>
+		
+		<h:outputStylesheet library="css" name="design01.css"  />
+		<h:outputScript library="js" name="calendar-dates.js" />
+		
+ 		#{editor.initRoomNames()} 
+ 		
+		<script language="javascript" type="text/javascript">
+			allDays = #{allres.fillAllCalendars()};
+			fullDays = updateVarFull(#{editor.room_id});
+			msg = "#{msg['cld.unavailable']}";
+		</script>
+		
+ 	</h:head>
+    <h:body>
+    <f:view locale="#{language.locale}">
+    	<ui:include src="header.htm" />
+    	<ui:include src="image.htm" />
+    	<div id="main">
+			<div class="center">
+				<h3>#{msg['title.book.room.at']}</h3>
+				<h4>La Passerelle des Corton</h4>
+				<div class="clear"></div>
+				<h:outputScript name="js/translation.js" />
+				<h:form id="roomform">
+					#{calendarBean.fillDates()}
+					<p:growl id="growl" showDetail="true"/>
+					<div class="formulaire">
+				   	   	<p:panel id="panel" header="#{msg['title.book.room']}" style="margin-bottom:10px;">  
+					        <p:messages id="messages" />  
+					        <h:panelGrid columns="3">  
+		        
+					        	<h:outputLabel for="room" value="#{msg['txt.room']}: *" />  
+					            <p:selectOneMenu id="room" value="#{editor.room_id}" required="true" onchange="updateVarFull(#{editor.room_id})"> 
+					                <f:selectItems value="#{editor.rooms}"/>  
+					                <p:ajax update="dout, din"/>
+					            </p:selectOneMenu>  
+					            <p:message for="room" />
+					        
+					            <h:outputLabel for="name" value="#{msg['txt.name']}: *" />  
+					            <p:inputText id="name" value="#{editor.name}" required="true" label="name" maxlength="20">  
+					                <f:validateLength minimum="2" maximum="20" />  
+					                <f:validateRegex pattern="[a-zA-Z'-]+"/>
+					            </p:inputText>  
+					            <p:message for="name" />  
+					                        
+					           	<h:outputLabel for="din" value="#{msg['txt.checkin']}: *" />
+					            <p:calendar value="#{calendarBean.date1}" mode="popup" readonlyInput="true" navigator="true" 
+				   					pattern="dd/MM/yyyy" showOn="both" locale="fr" id="din" yearRange="c:c+2"
+				   					mindate="#{calendarBean.fillToday()}" beforeShowDay="unavailableDates" required="true"
+				   					requiredMessage="champ obligatoire">
+				   					<p:ajax event="dateSelect" update="growl,dout" listener="#{calendarBean.handleDate1Select}"/>
+				   				</p:calendar>
+				   					<br/>
+				   					
+				   				<h:outputLabel for="dout" value="#{msg['txt.checkout']}: *" />
+					            <p:calendar value="#{calendarBean.date2}" mode="popup" readonlyInput="true" navigator="true" 
+				   					pattern="dd/MM/yyyy" showOn="both" locale="fr" id="dout" yearRange="c:c+2" maxdate="#{calendarBean.datetoPattern(calendarBean.datemax)}"
+				   					mindate="#{calendarBean.datetoPattern(calendarBean.datemin)}" beforeShowDay="unavailableDates" required="true"
+				   					requiredMessage="champ obligatoire">
+				   					<f:attribute name="startDate" value="#{calendarBean.date1}" />
+				   					<f:attribute name="room_id" value="#{editor.room_id}" />
+				   					<f:attribute name="maxDate" value="#{calendarBean.datemax}" />
+				    				<f:validator validatorId="dateValidator" binding="#{datevalidator}" />
+				   				</p:calendar>
+				   				<p:message for="dout" />
+					            
+					            <h:outputLabel for="pers" value="#{msg['txt.guests.nb']}: *" />  
+					            <p:selectOneMenu value="#{editor.nb_pers}" id="pers" required="true" label="pers">  
+						            <f:selectItem itemLabel="1" itemValue="1" />  
+						            <f:selectItem itemLabel="2" itemValue="2" />  
+						            <f:selectItem itemLabel="3" itemValue="3" />  
+						        </p:selectOneMenu> 
+					            <p:message for="pers" />
+					        </h:panelGrid> 
+					        <p:commandButton update="@(resa),@(form)" value="#{msg['btn.book']}" actionListener="#{editor.saveResa}"/>
+				    	</p:panel>
+			    	</div> 
+			    	<br/>
+			    	<h:link value="Calendrier des disponibilités" outcome="dispos" />
+					 |
+					<h:link value="Liste des réservations" outcome="listing" />
+					 |	
+			    	<h:link value="Page Admin" outcome="admin" />
+				</h:form>
+			</div>
+		</div>
+    	<ui:include src="footer.htm" />
+    </f:view>
+    </h:body>
+</html>
